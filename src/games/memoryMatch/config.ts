@@ -38,8 +38,37 @@ export const MODE_CONFIGS: Record<MemoryMatchMode, ModeConfig> = {
 
 export const MODE_ORDER: MemoryMatchMode[] = ['easy', 'medium', 'hard'];
 
-export const CARD_SYMBOLS = [
-  '🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯',
-  '🦁', '🐸', '🐵', '🐷', '🦄', '🐔', '🐧', '🐢',
-  '🍎', '🍌', '🍇', '🍉', '🍓', '🍒', '🍍', '🥝',
+export interface CardSymbol {
+  emoji: string;
+  bg: string;
+}
+
+// A mix of animals, nature, sports, food, and everyday objects so the
+// deck doesn't read as "just animal faces" — each gets its own pastel tile
+// color, similar to a printed card-game deck.
+export const CARD_SYMBOLS: CardSymbol[] = [
+  { emoji: '🐶', bg: '#f6dfc0' },
+  { emoji: '🌈', bg: '#cfe8fb' },
+  { emoji: '⚽', bg: '#fde79a' },
+  { emoji: '🚀', bg: '#dcd2fb' },
+  { emoji: '🐟', bg: '#bdeefc' },
+  { emoji: '🐱', bg: '#fbd3d3' },
+  { emoji: '🐦', bg: '#d3f3d6' },
+  { emoji: '🎈', bg: '#fcd9ec' },
+  { emoji: '🍎', bg: '#ffd6d6' },
+  { emoji: '🌻', bg: '#fdeeb0' },
+  { emoji: '🚗', bg: '#cbe8fd' },
+  { emoji: '🎵', bg: '#e3d6fb' },
+  { emoji: '🏀', bg: '#ffe2c2' },
+  { emoji: '🦋', bg: '#d9f0e6' },
+  { emoji: '🍦', bg: '#ffe0ea' },
+  { emoji: '🎁', bg: '#d6e8fc' },
+  { emoji: '🐢', bg: '#dcf0c9' },
+  { emoji: '🍉', bg: '#ffd7d1' },
+  { emoji: '🦁', bg: '#fde3b8' },
+  { emoji: '🌙', bg: '#dfe3fb' },
+  { emoji: '🐝', bg: '#fff0b3' },
+  { emoji: '🍭', bg: '#fbdaf0' },
+  { emoji: '🚲', bg: '#c9ecec' },
+  { emoji: '🐧', bg: '#e2e7f5' },
 ];

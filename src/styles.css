@@ -131,6 +131,18 @@ button {
   font-size: 1.3rem;
 }
 
+.mute-btn {
+  margin-left: auto;
+  background: white;
+  border: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
 /* Mode select */
 .mode-select {
   flex: 1;
@@ -172,15 +184,15 @@ button {
   transform: translateY(-4px);
 }
 
-.mode-easy {
+.mode-card.mode-easy {
   background: linear-gradient(135deg, #6ee7b7, #34d399);
 }
 
-.mode-medium {
+.mode-card.mode-medium {
   background: linear-gradient(135deg, #93c5fd, #6366f1);
 }
 
-.mode-hard {
+.mode-card.mode-hard {
   background: linear-gradient(135deg, #fca5a5, #ef4444);
 }
 
@@ -232,12 +244,14 @@ button {
   min-height: 0;
   display: grid;
   gap: 0.6rem;
+  background: transparent;
 }
 
 .memory-card {
   position: relative;
+  container-type: size;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   background: transparent;
   cursor: pointer;
   perspective: 800px;
@@ -251,20 +265,28 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(1.2rem, 4vw, 2.2rem);
-  border-radius: 12px;
+  border-radius: 14px;
   backface-visibility: hidden;
-  transition: transform 0.15s ease;
+  transition: transform 0.25s ease;
 }
 
 .card-front {
-  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  background: repeating-linear-gradient(45deg, #5eb3c9 0 14px, #57a9be 14px 28px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   transform: rotateY(0deg);
 }
 
+.card-front-star {
+  font-size: 42cqmin;
+  color: white;
+  opacity: 0.9;
+  line-height: 1;
+}
+
 .card-back {
-  background: white;
-  border: 2px solid #eee;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 52cqmin;
+  line-height: 1;
   transform: rotateY(180deg);
 }
 
@@ -277,7 +299,6 @@ button {
 }
 
 .memory-card.matched .card-back {
-  background: #d1fae5;
   border-color: #34d399;
 }
 

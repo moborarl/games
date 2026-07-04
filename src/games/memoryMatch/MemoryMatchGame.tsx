@@ -2,19 +2,22 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { MemoryMatchMode, SubmitScoreResponse } from '@shared/types';
 import { CARD_SYMBOLS, MODE_CONFIGS, MODE_ORDER } from './config';
 import { Scoreboard, formatTime } from './Scoreboard';
+import { playFlip, playMatch, playMismatch, playWin } from './sound';
 
 interface Card {
   id: number;
   symbol: string;
+  bg: string;
   flipped: boolean;
   matched: boolean;
 }
 
 function buildDeck(pairs: number): Card[] {
-  const symbols = CARD_SYMBOLS.slice(0, pairs);
-  const deck = [...symbols, ...symbols].map((symbol, i) => ({
+  const picks = CARD_SYMBOLS.slice(0, pairs);
+  const deck = [...picks, ...picks].map((pick, i) => ({
     id: i,
-    symbol,
+    symbol: pick.emoji,
+    bg: pick.bg,
     flipped: false,
     matched: false,
   }));
@@ -74,6 +77,7 @@ export function MemoryMatchGame() {
     if (allMatched && phase === 'playing' && startedAt !== null) {
       setFinalTimeMs(Date.now() - startedAt);
       setPhase('won');
+      playWin();
       if (tickRef.current) window.clearInterval(tickRef.current);
     }
   }, [allMatched, phase, startedAt]);
@@ -85,6 +89,7 @@ export function MemoryMatchGame() {
     if (selected.includes(cardIndex)) return;
 
     if (startedAt === null) setStartedAt(Date.now());
+    playFlip();
 
     const nextCards = cards.map((c, i) => (i === cardIndex ? { ...c, flipped: true } : c));
     const nextSelected = [...selected, cardIndex];
@@ -96,6 +101,7 @@ export function MemoryMatchGame() {
       const [a, b] = nextSelected;
       if (nextCards[a].symbol === nextCards[b].symbol) {
         setLocked(true);
+        playMatch();
         window.setTimeout(() => {
           setCards((cur) => cur.map((c, i) => (i === a || i === b ? { ...c, matched: true } : c)));
           setSelected([]);
@@ -103,11 +109,12 @@ export function MemoryMatchGame() {
         }, 200);
       } else {
         setLocked(true);
+        playMismatch();
         window.setTimeout(() => {
           setCards((cur) => cur.map((c, i) => (i === a || i === b ? { ...c, flipped: false } : c)));
           setSelected([]);
           setLocked(false);
-        }, 550);
+        }, 650);
       }
     }
   }
@@ -174,7 +181,7 @@ export function MemoryMatchGame() {
       </div>
 
       <div
-        className={`card-grid mode-${mode}`}
+        className="card-grid"
         style={{
           gridTemplateColumns: `repeat(${config.columns}, 1fr)`,
           gridTemplateRows: `repeat(${Math.ceil(cards.length / config.columns)}, 1fr)`,
@@ -187,8 +194,12 @@ export function MemoryMatchGame() {
             onClick={() => handleFlip(i)}
             disabled={card.matched}
           >
-            <span className="card-face card-front">❓</span>
-            <span className="card-face card-back">{card.symbol}</span>
+            <span className="card-face card-front">
+              <span className="card-front-star">⭐</span>
+            </span>
+            <span className="card-face card-back" style={{ background: card.bg }}>
+              {card.symbol}
+            </span>
           </button>
         ))}
       </div>
