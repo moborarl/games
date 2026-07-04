@@ -100,14 +100,14 @@ export function MemoryMatchGame() {
           setCards((cur) => cur.map((c, i) => (i === a || i === b ? { ...c, matched: true } : c)));
           setSelected([]);
           setLocked(false);
-        }, 300);
+        }, 200);
       } else {
         setLocked(true);
         window.setTimeout(() => {
           setCards((cur) => cur.map((c, i) => (i === a || i === b ? { ...c, flipped: false } : c)));
           setSelected([]);
           setLocked(false);
-        }, 800);
+        }, 550);
       }
     }
   }
@@ -175,7 +175,10 @@ export function MemoryMatchGame() {
 
       <div
         className={`card-grid mode-${mode}`}
-        style={{ gridTemplateColumns: `repeat(${config.columns}, 1fr)` }}
+        style={{
+          gridTemplateColumns: `repeat(${config.columns}, 1fr)`,
+          gridTemplateRows: `repeat(${Math.ceil(cards.length / config.columns)}, 1fr)`,
+        }}
       >
         {cards.map((card, i) => (
           <button

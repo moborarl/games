@@ -57,32 +57,34 @@ export function Scoreboard({
           </button>
         ))}
       </div>
-      {loading ? (
-        <p className="muted">กำลังโหลด...</p>
-      ) : scores.length === 0 ? (
-        <p className="muted">ยังไม่มีใครทำคะแนนไว้ เป็นคนแรกเลย!</p>
-      ) : (
-        <table className="score-table">
-          <thead>
-            <tr>
-              <th>อันดับ</th>
-              <th>ชื่อ</th>
-              <th>เวลา</th>
-              <th>จำนวนครั้ง</th>
-            </tr>
-          </thead>
-          <tbody>
-            {scores.map((s, i) => (
-              <tr key={s.id} className={i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}>
-                <td>{i + 1}</td>
-                <td>{s.playerName}</td>
-                <td>{formatTime(s.timeMs)}</td>
-                <td>{s.moves}</td>
+      <div className="scoreboard-body">
+        {loading ? (
+          <p className="muted">กำลังโหลด...</p>
+        ) : scores.length === 0 ? (
+          <p className="muted">ยังไม่มีใครทำคะแนนไว้ เป็นคนแรกเลย!</p>
+        ) : (
+          <table className="score-table">
+            <thead>
+              <tr>
+                <th>อันดับ</th>
+                <th>ชื่อ</th>
+                <th>เวลา</th>
+                <th>จำนวนครั้ง</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {scores.map((s, i) => (
+                <tr key={s.id} className={i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}>
+                  <td>{i + 1}</td>
+                  <td>{s.playerName}</td>
+                  <td>{formatTime(s.timeMs)}</td>
+                  <td>{s.moves}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }
