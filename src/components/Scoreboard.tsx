@@ -1,23 +1,18 @@
 import { useEffect, useState } from 'react';
-import type { MemoryMatchMode, ScoreRecord, ScoreboardResponse } from '@shared/types';
-import { MODE_CONFIGS, MODE_ORDER } from './config';
-
-function formatTime(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  const millis = Math.floor(ms % 1000);
-  return `${minutes}:${seconds.toString().padStart(2, '0')}.${millis.toString().padStart(3, '0')}`;
-}
+import type { ScoreRecord, ScoreboardResponse } from '@shared/types';
+import { MAX_RANKS, MODE_META, MODE_ORDER, type GameMode } from '../lib/modes';
+import { formatTime } from '../lib/format';
 
 export function Scoreboard({
+  game,
   activeMode,
   refreshToken,
 }: {
-  activeMode?: MemoryMatchMode;
+  game: string;
+  activeMode?: GameMode;
   refreshToken?: number;
 }) {
-  const [mode, setMode] = useState<MemoryMatchMode>(activeMode ?? 'easy');
+  const [mode, setMode] = useState<GameMode>(activeMode ?? 'easy');
   const [scores, setScores] = useState<ScoreRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +23,7 @@ export function Scoreboard({
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/scores?game=memory-match&mode=${mode}&limit=10`)
+    fetch(`/api/scores?game=${game}&mode=${mode}&limit=${MAX_RANKS}`)
       .then((res) => res.json() as Promise<ScoreboardResponse>)
       .then((data) => {
         if (!cancelled) setScores(data.scores);
@@ -42,7 +37,7 @@ export function Scoreboard({
     return () => {
       cancelled = true;
     };
-  }, [mode, refreshToken]);
+  }, [game, mode, refreshToken]);
 
   return (
     <div className="scoreboard">
@@ -53,7 +48,7 @@ export function Scoreboard({
             className={`tab-btn ${mode === m ? 'active' : ''}`}
             onClick={() => setMode(m)}
           >
-            {MODE_CONFIGS[m].emoji} {MODE_CONFIGS[m].label}
+            {MODE_META[m].emoji} {MODE_META[m].label}
           </button>
         ))}
       </div>
@@ -88,5 +83,3 @@ export function Scoreboard({
     </div>
   );
 }
-
-export { formatTime };

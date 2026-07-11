@@ -1,12 +1,13 @@
 # kids-games — Project Handoff
 
-Last updated: 2026-07-04
+Last updated: 2026-07-08
 
 ## What this is
 
-A hub of simple browser games for kids, built on Cloudflare Workers. First (and
-currently only) game is **เกมส์ไพ่จับคู่** (memory match card game) with 3
-difficulty modes and an online, shared scoreboard.
+A hub of simple browser games for kids, built on Cloudflare Workers. Games so
+far: **เกมส์ไพ่จับคู่** (memory match) and **Amaze Arrow** (arrow-sliding
+puzzle), each with 3 difficulty modes and a shared online scoreboard, plus a
+combined scores dashboard at `/scores`.
 
 - **Live**: https://kids-games.nupark.workers.dev
 - **Repo**: https://github.com/moborarl/games (branch `main`)
@@ -38,29 +39,61 @@ for something not yet done here (e.g. parent/child auth, R2 uploads).
 ## Repo map
 
 ```
-index.html                       Vite entry HTML
+index.html                       Vite entry HTML (Google Fonts: Mali + Noto Sans Thai)
 src/
   main.tsx                       React root, mounts <App/> in BrowserRouter
-  App.tsx                        Routes: "/" and "/games/memory-match"
-  styles.css                     All CSS, single global stylesheet
+  App.tsx                        Routes: "/", /games/memory-match, /games/amaze-arrow, /scores
+  styles.css                     All CSS, single global stylesheet (design tokens in :root)
+  lib/
+    format.ts                    formatTime (m:ss.mmm)
+    modes.ts                     GameMode type, MODE_ORDER/MODE_META, MAX_RANKS=10
+    playerName.ts                remembered player name (localStorage)
+    sound.ts                     Web Audio synthesized SFX + mute preference
+  components/
+    Scoreboard.tsx               top-10 table for any game slug + mode tabs
+    TimerDisplay.tsx             self-ticking 30ms clock (isolates re-renders)
   pages/
-    Home.tsx                     Game hub grid (tiles for each game)
-    MemoryMatchPage.tsx          Page shell + mute toggle button
+    Home.tsx                     Game hub tiles
+    MemoryMatchPage.tsx          Page shell + mute toggle
+    AmazeArrowPage.tsx           Page shell + mute toggle
+    ScoresPage.tsx               /scores dashboard: all games, all modes
   games/memoryMatch/
-    config.ts                    MODE_CONFIGS (easy/medium/hard) + CARD_SYMBOLS
-    MemoryMatchGame.tsx           All game state machine + rendering
-    Scoreboard.tsx                Fetches/renders top scores for a mode
-    sound.ts                      Web Audio synthesized SFX (no audio files)
+    config.ts                    MODE_CONFIGS + CARD_SYMBOLS (emoji + pastel bg)
+    MemoryMatchGame.tsx          Game state machine + rendering
+  games/amazeArrow/
+    config.ts                    ARROW_MODE_CONFIGS (board size, pieces, hearts), CELL=40
+    generator.ts                 reverse-construction board generator (always solvable)
+    AmazeArrowGame.tsx           SVG board, tap→slide/bounce animation, hearts, win/lose
 worker/
   index.ts                       Hono app entry, mounts routes, falls back to ASSETS
   env.ts                         Env bindings type (DB: D1Database, ASSETS: Fetcher)
-  routes/scores.ts                GET/POST /api/scores
+  routes/scores.ts                GET/POST /api/scores (limit hard-capped at 10)
 shared/types.ts                  MemoryMatchMode, ScoreRecord, payload/response types
 db/migrations/0001_init.sql      `scores` table
 wrangler.jsonc                   Worker + D1 binding config
 .github/workflows/deploy.yml     CI: build + migrate + deploy on push to main
 dev.cmd                          Windows dev launcher (sets PATH, runs `npm run dev`)
 ```
+
+## Amaze Arrow design notes
+
+- **Mechanic**: tap an arrow piece → it slides along its own polyline shape
+  (train-style) in the head's direction; clear path → exits the board,
+  blocked by another piece → bounces back (and costs a heart on
+  medium/hard). Clear all pieces to win. Easy has no hearts (can't lose).
+- **Modes** (`games/amazeArrow/config.ts`): easy 7×6 / 16 pieces / short
+  arrows only; medium 9×8 / 28 pieces / ~25% snakes len 3-4 / 3 hearts;
+  hard 12×10 / 44 pieces / ~30% snakes len 3-5 / 3 hearts.
+- **Generator guarantees solvability** by reverse construction: each new
+  piece's exit ray must avoid all previously placed pieces, so tapping in
+  reverse placement order (descending `id`) always solves the board. Useful
+  for testing: `g[data-pid]` elements, tap descending pid.
+- **Animation is setTimeout-driven for game state; rAF only draws.** This
+  matters: in throttled/background tabs rAF may never fire, and an earlier
+  version locked up because piece removal happened in the rAF callback.
+  Don't move game-state changes back into rAF.
+- Scores post to the same `/api/scores` with `game: 'amaze-arrow'`;
+  `moves` = total taps (server requires moves > 0, which taps always is).
 
 ## Data model
 

@@ -1,27 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { MemoryMatchMode, ScoreboardResponse, SubmitScoreResponse } from '@shared/types';
 import { CARD_SYMBOLS, MODE_CONFIGS, MODE_ORDER } from './config';
-import { Scoreboard, formatTime } from './Scoreboard';
-import { playFlip, playMatch, playMismatch, playWin } from './sound';
+import { Scoreboard } from '../../components/Scoreboard';
+import { TimerDisplay } from '../../components/TimerDisplay';
+import { formatTime } from '../../lib/format';
+import { MAX_RANKS } from '../../lib/modes';
+import { loadSavedName, saveName } from '../../lib/playerName';
+import { playFlip, playMatch, playMismatch, playWin } from '../../lib/sound';
 
-const NAME_STORAGE_KEY = 'kids-games-player-name';
-const MAX_RANKS = 10;
-
-function loadSavedName(): string {
-  try {
-    return localStorage.getItem(NAME_STORAGE_KEY) ?? '';
-  } catch {
-    return '';
-  }
-}
-
-function saveName(name: string) {
-  try {
-    localStorage.setItem(NAME_STORAGE_KEY, name);
-  } catch {
-    // ignore storage errors
-  }
-}
+const GAME_SLUG = 'memory-match';
 
 interface Card {
   id: number;
@@ -45,23 +32,6 @@ function buildDeck(pairs: number): Card[] {
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
   return deck;
-}
-
-// Self-ticking so the 30ms clock doesn't re-render the whole card grid.
-function TimerDisplay({ startedAt, running }: { startedAt: number | null; running: boolean }) {
-  const [elapsedMs, setElapsedMs] = useState(0);
-
-  useEffect(() => {
-    if (startedAt === null) {
-      setElapsedMs(0);
-      return;
-    }
-    if (!running) return;
-    const tick = window.setInterval(() => setElapsedMs(Date.now() - startedAt), 30);
-    return () => window.clearInterval(tick);
-  }, [startedAt, running]);
-
-  return <div className="hud-stat">⏱ {formatTime(elapsedMs)}</div>;
 }
 
 type Phase = 'select-mode' | 'playing' | 'won';
@@ -111,7 +81,7 @@ export function MemoryMatchGame() {
       playWin();
 
       // ถามชื่อเฉพาะเมื่อคะแนนติด 10 อันดับแรกของโหมดนั้น
-      fetch(`/api/scores?game=memory-match&mode=${mode}&limit=${MAX_RANKS}`)
+      fetch(`/api/scores?game=${GAME_SLUG}&mode=${mode}&limit=${MAX_RANKS}`)
         .then((res) => res.json() as Promise<ScoreboardResponse>)
         .then((data) => {
           const scores = data.scores ?? [];
@@ -174,7 +144,7 @@ export function MemoryMatchGame() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          game: 'memory-match',
+          game: GAME_SLUG,
           mode,
           playerName: name,
           timeMs: finalTimeMs,
@@ -211,7 +181,7 @@ export function MemoryMatchGame() {
         </div>
         <div className="scoreboard-section">
           <h3>🏆 กระดานคะแนน</h3>
-          <Scoreboard />
+          <Scoreboard game={GAME_SLUG} />
         </div>
       </div>
     );
@@ -297,7 +267,7 @@ export function MemoryMatchGame() {
             ) : null}
 
             <div className="scoreboard-section">
-              <Scoreboard activeMode={mode} refreshToken={scoreboardRefreshToken} />
+              <Scoreboard game={GAME_SLUG} activeMode={mode} refreshToken={scoreboardRefreshToken} />
             </div>
 
             <div className="win-actions">

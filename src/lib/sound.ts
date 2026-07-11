@@ -24,6 +24,30 @@ function tone(freq: number, startOffset: number, duration: number, type: Oscilla
   osc.stop(now + duration + 0.02);
 }
 
+function sweep(
+  freqFrom: number,
+  freqTo: number,
+  startOffset: number,
+  duration: number,
+  type: OscillatorType,
+  peak: number
+) {
+  if (muted) return;
+  const audioCtx = getCtx();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  const now = audioCtx.currentTime + startOffset;
+  osc.frequency.setValueAtTime(freqFrom, now);
+  osc.frequency.linearRampToValueAtTime(freqTo, now + duration);
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(peak, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + duration + 0.02);
+}
+
 export function loadMutedPreference(): boolean {
   try {
     muted = localStorage.getItem(STORAGE_KEY) === '1';
@@ -57,4 +81,18 @@ export function playMismatch() {
 
 export function playWin() {
   [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => tone(freq, i * 0.12, 0.28, 'sine', 0.18));
+}
+
+export function playSlide() {
+  sweep(300, 620, 0, 0.14, 'triangle', 0.1);
+}
+
+export function playCrash() {
+  tone(120, 0, 0.18, 'sawtooth', 0.12);
+}
+
+export function playLose() {
+  tone(392, 0, 0.18, 'sine', 0.15);
+  tone(311, 0.15, 0.18, 'sine', 0.15);
+  tone(247, 0.3, 0.3, 'sine', 0.15);
 }

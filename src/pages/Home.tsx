@@ -8,7 +8,20 @@ const GAMES = [
     subtitle: 'จับคู่ไพ่ให้ครบ ยิ่งเร็วยิ่งเก่ง!',
     ready: true,
   },
-  { to: '#', emoji: '🧩', title: 'ต่อจิ๊กซอว์', subtitle: 'เร็วๆ นี้', ready: false },
+  {
+    to: '/games/amaze-arrow',
+    emoji: '🏹',
+    title: 'Amaze Arrow',
+    subtitle: 'กดลูกศรให้วิ่งออกจากกระดานให้หมด!',
+    ready: true,
+  },
+  {
+    to: '/scores',
+    emoji: '🏆',
+    title: 'กระดานคะแนนรวม',
+    subtitle: 'ดูคะแนนทุกเกม ทุกระดับ',
+    ready: true,
+  },
   { to: '#', emoji: '🔢', title: 'เกมส์เลข', subtitle: 'เร็วๆ นี้', ready: false },
 ];
 

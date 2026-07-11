@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MemoryMatchGame } from '../games/memoryMatch/MemoryMatchGame';
+import { AmazeArrowGame } from '../games/amazeArrow/AmazeArrowGame';
 import { loadMutedPreference, setMuted } from '../lib/sound';
 
-export function MemoryMatchPage() {
+export function AmazeArrowPage() {
   const [muted, setMutedState] = useState(false);
 
   useEffect(() => {
@@ -22,12 +22,12 @@ export function MemoryMatchPage() {
         <Link to="/" className="link-btn">
           ← กลับหน้าแรก
         </Link>
-        <h1>🃏 เกมส์ไพ่จับคู่</h1>
+        <h1>🏹 Amaze Arrow</h1>
         <button className="mute-btn" onClick={toggleMuted} aria-label="เปิด/ปิดเสียง">
           {muted ? '🔇' : '🔊'}
         </button>
       </header>
-      <MemoryMatchGame />
+      <AmazeArrowGame />
     </div>
   );
 }
