@@ -1,8 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { MemoryMatchMode, SubmitScoreResponse } from '@shared/types';
+import type { MemoryMatchMode, ScoreboardResponse, SubmitScoreResponse } from '@shared/types';
 import { CARD_SYMBOLS, MODE_CONFIGS, MODE_ORDER } from './config';
 import { Scoreboard, formatTime } from './Scoreboard';
 import { playFlip, playMatch, playMismatch, playWin } from './sound';
+
+const NAME_STORAGE_KEY = 'kids-games-player-name';
+const MAX_RANKS = 10;
+
+function loadSavedName(): string {
+  try {
+    return localStorage.getItem(NAME_STORAGE_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function saveName(name: string) {
+  try {
+    localStorage.setItem(NAME_STORAGE_KEY, name);
+  } catch {
+    // ignore storage errors
+  }
+}
 
 interface Card {
   id: number;
@@ -60,6 +79,7 @@ export function MemoryMatchGame() {
   const [playerName, setPlayerName] = useState('');
   const [submitState, setSubmitState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [rank, setRank] = useState<number | null>(null);
+  const [qualifies, setQualifies] = useState<boolean | null>(null);
   const [scoreboardRefreshToken, setScoreboardRefreshToken] = useState(0);
   const wonRef = useRef(false);
 
@@ -74,9 +94,10 @@ export function MemoryMatchGame() {
     setMoves(0);
     setLocked(false);
     setStartedAt(null);
-    setPlayerName('');
+    setPlayerName(loadSavedName());
     setSubmitState('idle');
     setRank(null);
+    setQualifies(null);
     wonRef.current = false;
     setPhase('playing');
   }
@@ -84,11 +105,26 @@ export function MemoryMatchGame() {
   useEffect(() => {
     if (allMatched && phase === 'playing' && startedAt !== null && !wonRef.current) {
       wonRef.current = true;
-      setFinalTimeMs(Date.now() - startedAt);
+      const timeMs = Date.now() - startedAt;
+      setFinalTimeMs(timeMs);
       setPhase('won');
       playWin();
+
+      // ถามชื่อเฉพาะเมื่อคะแนนติด 10 อันดับแรกของโหมดนั้น
+      fetch(`/api/scores?game=memory-match&mode=${mode}&limit=${MAX_RANKS}`)
+        .then((res) => res.json() as Promise<ScoreboardResponse>)
+        .then((data) => {
+          const scores = data.scores ?? [];
+          if (scores.length < MAX_RANKS) {
+            setQualifies(true);
+            return;
+          }
+          const last = scores[scores.length - 1];
+          setQualifies(timeMs < last.timeMs);
+        })
+        .catch(() => setQualifies(true));
     }
-  }, [allMatched, phase, startedAt]);
+  }, [allMatched, phase, startedAt, mode]);
 
   function handleFlip(cardIndex: number) {
     if (locked) return;
@@ -147,6 +183,7 @@ export function MemoryMatchGame() {
       });
       if (!res.ok) throw new Error('save_failed');
       const data = (await res.json()) as SubmitScoreResponse;
+      saveName(name);
       setRank(data.rank);
       setSubmitState('saved');
       setScoreboardRefreshToken((t) => t + 1);
@@ -236,7 +273,9 @@ export function MemoryMatchGame() {
               </div>
             </div>
 
-            {submitState !== 'saved' ? (
+            {submitState === 'saved' ? (
+              <p className="save-success">บันทึกแล้ว! อันดับของเธอคือ #{rank}</p>
+            ) : qualifies === true ? (
               <div className="save-score-form">
                 <input
                   type="text"
@@ -253,9 +292,9 @@ export function MemoryMatchGame() {
                   {submitState === 'saving' ? 'กำลังบันทึก...' : 'บันทึกคะแนน'}
                 </button>
               </div>
-            ) : (
-              <p className="save-success">บันทึกแล้ว! อันดับของเธอคือ #{rank}</p>
-            )}
+            ) : qualifies === false ? (
+              <p className="muted">ยังไม่ติด 10 อันดับแรก — ลองอีกครั้งนะ! 💪</p>
+            ) : null}
 
             <div className="scoreboard-section">
               <Scoreboard activeMode={mode} refreshToken={scoreboardRefreshToken} />

@@ -4,6 +4,7 @@ import type { ScoreRecord, SubmitScorePayload } from '@shared/types';
 
 const MODES = new Set(['easy', 'medium', 'hard']);
 const MAX_NAME_LEN = 20;
+const MAX_RANKS = 10;
 
 export const scoresRoutes = new Hono<AppEnv>();
 
@@ -33,7 +34,7 @@ function toRecord(row: ScoreRow): ScoreRecord {
 scoresRoutes.get('/', async (c) => {
   const game = c.req.query('game') ?? 'memory-match';
   const mode = c.req.query('mode') ?? 'easy';
-  const limit = Math.min(Number(c.req.query('limit') ?? '10') || 10, 50);
+  const limit = Math.min(Number(c.req.query('limit') ?? '10') || 10, MAX_RANKS);
 
   if (!MODES.has(mode)) return c.json({ error: 'invalid_mode' }, 400);
 
