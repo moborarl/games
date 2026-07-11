@@ -210,3 +210,8 @@ Until those secrets exist, keep deploying manually from a machine with
 - `dev.cmd` explicitly prepends `C:\Program Files\nodejs` to `PATH` before
   running `npm run dev`, because the shell's default `PATH` here doesn't
   always pick up Node otherwise.
+- Local D1 state (`.wrangler/state/`) is keyed by the `database_id` in
+  `wrangler.jsonc`. If that id ever changes (it did once, from a placeholder
+  to the real uuid), the local DB silently becomes empty and `/api/scores`
+  returns 500 `no such table: scores` — just re-run
+  `npx wrangler d1 migrations apply DB --local`.

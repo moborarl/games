@@ -30,6 +30,7 @@ export function Home() {
             <span className="game-tile-emoji">{g.emoji}</span>
             <span className="game-tile-title">{g.title}</span>
             <span className="game-tile-subtitle">{g.subtitle}</span>
+            <span className="game-tile-cta">{g.ready ? 'เล่นเลย →' : 'เร็วๆ นี้'}</span>
           </Link>
         ))}
       </div>

@@ -75,7 +75,7 @@ export function Scoreboard({
             <tbody>
               {scores.map((s, i) => (
                 <tr key={s.id} className={i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}>
-                  <td>{i + 1}</td>
+                  <td>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</td>
                   <td>{s.playerName}</td>
                   <td>{formatTime(s.timeMs)}</td>
                   <td>{s.moves}</td>

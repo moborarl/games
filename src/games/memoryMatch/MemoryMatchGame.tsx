@@ -28,6 +28,23 @@ function buildDeck(pairs: number): Card[] {
   return deck;
 }
 
+// Self-ticking so the 30ms clock doesn't re-render the whole card grid.
+function TimerDisplay({ startedAt, running }: { startedAt: number | null; running: boolean }) {
+  const [elapsedMs, setElapsedMs] = useState(0);
+
+  useEffect(() => {
+    if (startedAt === null) {
+      setElapsedMs(0);
+      return;
+    }
+    if (!running) return;
+    const tick = window.setInterval(() => setElapsedMs(Date.now() - startedAt), 30);
+    return () => window.clearInterval(tick);
+  }, [startedAt, running]);
+
+  return <div className="hud-stat">⏱ {formatTime(elapsedMs)}</div>;
+}
+
 type Phase = 'select-mode' | 'playing' | 'won';
 
 export function MemoryMatchGame() {
@@ -35,16 +52,16 @@ export function MemoryMatchGame() {
   const [mode, setMode] = useState<MemoryMatchMode>('easy');
   const [cards, setCards] = useState<Card[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
+  const [shaking, setShaking] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
   const [locked, setLocked] = useState(false);
   const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [elapsedMs, setElapsedMs] = useState(0);
   const [finalTimeMs, setFinalTimeMs] = useState(0);
   const [playerName, setPlayerName] = useState('');
   const [submitState, setSubmitState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [rank, setRank] = useState<number | null>(null);
   const [scoreboardRefreshToken, setScoreboardRefreshToken] = useState(0);
-  const tickRef = useRef<number | null>(null);
+  const wonRef = useRef(false);
 
   const config = MODE_CONFIGS[mode];
   const allMatched = useMemo(() => cards.length > 0 && cards.every((c) => c.matched), [cards]);
@@ -53,32 +70,23 @@ export function MemoryMatchGame() {
     setMode(selectedMode);
     setCards(buildDeck(MODE_CONFIGS[selectedMode].pairs));
     setSelected([]);
+    setShaking([]);
     setMoves(0);
     setLocked(false);
     setStartedAt(null);
-    setElapsedMs(0);
     setPlayerName('');
     setSubmitState('idle');
     setRank(null);
+    wonRef.current = false;
     setPhase('playing');
   }
 
   useEffect(() => {
-    if (phase !== 'playing' || startedAt === null) return;
-    tickRef.current = window.setInterval(() => {
-      setElapsedMs(Date.now() - startedAt);
-    }, 30);
-    return () => {
-      if (tickRef.current) window.clearInterval(tickRef.current);
-    };
-  }, [phase, startedAt]);
-
-  useEffect(() => {
-    if (allMatched && phase === 'playing' && startedAt !== null) {
+    if (allMatched && phase === 'playing' && startedAt !== null && !wonRef.current) {
+      wonRef.current = true;
       setFinalTimeMs(Date.now() - startedAt);
       setPhase('won');
       playWin();
-      if (tickRef.current) window.clearInterval(tickRef.current);
     }
   }, [allMatched, phase, startedAt]);
 
@@ -110,9 +118,11 @@ export function MemoryMatchGame() {
       } else {
         setLocked(true);
         playMismatch();
+        setShaking([a, b]);
         window.setTimeout(() => {
           setCards((cur) => cur.map((c, i) => (i === a || i === b ? { ...c, flipped: false } : c)));
           setSelected([]);
+          setShaking([]);
           setLocked(false);
         }, 650);
       }
@@ -176,7 +186,7 @@ export function MemoryMatchGame() {
         <button className="link-btn" onClick={() => setPhase('select-mode')}>
           ← เลือกโหมดใหม่
         </button>
-        <div className="hud-stat">⏱ {formatTime(elapsedMs)}</div>
+        <TimerDisplay startedAt={startedAt} running={phase === 'playing'} />
         <div className="hud-stat">🔁 {moves} ครั้ง</div>
       </div>
 
@@ -190,7 +200,7 @@ export function MemoryMatchGame() {
         {cards.map((card, i) => (
           <button
             key={card.id}
-            className={`memory-card ${card.flipped || card.matched ? 'flipped' : ''} ${card.matched ? 'matched' : ''}`}
+            className={`memory-card ${card.flipped || card.matched ? 'flipped' : ''} ${card.matched ? 'matched' : ''} ${shaking.includes(i) ? 'shake' : ''}`}
             onClick={() => handleFlip(i)}
             disabled={card.matched}
           >
@@ -208,15 +218,23 @@ export function MemoryMatchGame() {
         <div className="win-modal-backdrop">
           <div className="win-modal">
             <h2>🎉 เก่งมาก! จับคู่ครบแล้ว</h2>
-            <p>
-              โหมด: <strong>{config.label}</strong>
-            </p>
-            <p>
-              เวลาที่ใช้: <strong>{formatTime(finalTimeMs)}</strong>
-            </p>
-            <p>
-              จำนวนครั้งที่พลิกไพ่: <strong>{moves}</strong>
-            </p>
+
+            <div className="win-stats">
+              <div className="win-stat">
+                <span className="win-stat-label">โหมด</span>
+                <span className="win-stat-value">
+                  {config.emoji} {config.label}
+                </span>
+              </div>
+              <div className="win-stat">
+                <span className="win-stat-label">เวลาที่ใช้</span>
+                <span className="win-stat-value">{formatTime(finalTimeMs)}</span>
+              </div>
+              <div className="win-stat">
+                <span className="win-stat-label">พลิกไพ่</span>
+                <span className="win-stat-value">{moves} ครั้ง</span>
+              </div>
+            </div>
 
             {submitState !== 'saved' ? (
               <div className="save-score-form">
