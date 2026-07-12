@@ -150,15 +150,24 @@ export function generateBoard(cfg: ArrowModeConfig, colors: string[]): Piece[] {
     return { id, cells: best.cells, dir: best.dir, color: colors[id % colors.length] };
   }
 
-  for (let i = 0; i < cfg.pieces; i++) {
-    // ทุกชิ้นเป็นลูกศรยาว (ไม่มี 1 ช่อง) — ถ้ากระดานแน่น ค่อยลดความยาวลง
-    // แต่ไม่ต่ำกว่า 2 ช่อง
+  // โหมด fill: วางไปเรื่อยๆ จนกระดานแน่น (ล้มเหลวติดกันหลายครั้งค่อยหยุด)
+  // ลูกศรช่วงแรกจะยาวเต็มสเปก พอกระดานแน่นค่อยไล่ลดความยาวลง (ต่ำสุด 2)
+  const failLimit = cfg.fill ? 40 : 1;
+  let failStreak = 0;
+  while (pieces.length < cfg.pieces && failStreak < failLimit) {
     const len = cfg.snakeMin + rand(cfg.snakeMax - cfg.snakeMin + 1);
-    let piece = tryPlace(i, len);
-    if (!piece) piece = tryPlace(i, cfg.snakeMin);
-    if (!piece) piece = tryPlace(i, 2);
-    if (!piece) break; // กระดานแน่นเกินไป — จบด้วยจำนวนเท่าที่วางได้
-    pieces.push(piece);
+    const ladder = cfg.fill ? [len, 10, 7, 5, 3, 2] : [len, cfg.snakeMin, 2];
+    let piece: Piece | null = null;
+    for (const L of ladder) {
+      piece = tryPlace(pieces.length, Math.max(2, Math.min(L, len)));
+      if (piece) break;
+    }
+    if (piece) {
+      pieces.push(piece);
+      failStreak = 0;
+    } else {
+      failStreak++;
+    }
   }
   return pieces;
 }

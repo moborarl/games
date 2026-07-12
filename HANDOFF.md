@@ -84,8 +84,12 @@ dev.cmd                          Windows dev launcher (sets PATH, runs `npm run 
 - **Modes** (`games/amazeArrow/config.ts`): every piece is a multi-bend
   snake now (no 1-cell arrows). easy 24×15 / 28 pieces / len 4-9 / no
   hearts; medium 30×20 / 34 pieces / len 5-13 / 3 hearts; hard (extreme)
-  48×30 / 40 pieces / len 14-20 / 3 hearts. Per-mode `turnBias` (0.72 for
-  easy/medium, 0.88 for hard) controls how bendy the snakes are.
+  48×30 with `fill: true` — keeps placing pieces until the board saturates
+  (~70-75 pieces covering ~70% of cells; early pieces are len 14-20, later
+  ones shrink down a ladder to 2 as space runs out) / 3 hearts. Per-mode
+  `turnBias` (0.72 for easy/medium, 0.88 for hard) controls how bendy the
+  snakes are. Hard generation runs ~0.5s synchronously on mode click —
+  fine, but don't add anything slower to that path.
   `snakeRatio` is kept in the config type but no longer read (always builds
   snakes); the length floor is 2 cells.
 - **Long snakes need backtracking**: the body is grown with a

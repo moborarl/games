@@ -10,7 +10,7 @@ import { loadSavedName, saveName } from '../../lib/playerName';
 import { playCrash, playLose, playSlide, playWin } from '../../lib/sound';
 
 const GAME_SLUG = 'amaze-arrow';
-const SLIDE_SPEED = 560; // หน่วย viewBox ต่อวินาที
+const SLIDE_SPEED = 1300; // หน่วย viewBox ต่อวินาที
 
 interface Pt {
   x: number;
@@ -166,8 +166,8 @@ export function AmazeArrowGame() {
       onDone();
       return;
     }
-    // จำกัดเวลาเลื่อนไม่เกิน 1.4 วิ เพื่อกระดานใหญ่ๆ จะได้ไม่วิ่งช้าเกินไป
-    const outDur = Math.min(1400, Math.max(130, (sTarget / SLIDE_SPEED) * 1000));
+    // จำกัดเวลาเลื่อนไม่เกิน 0.8 วิ เพื่อกระดานใหญ่ๆ จะได้ไม่วิ่งช้าเกินไป
+    const outDur = Math.min(800, Math.max(100, (sTarget / SLIDE_SPEED) * 1000));
     const backDur = outDur * 0.75;
     const total = bounce ? outDur + backDur : outDur;
     const t0 = performance.now();

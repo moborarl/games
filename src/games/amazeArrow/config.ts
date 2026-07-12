@@ -17,6 +17,7 @@ export interface ArrowModeConfig {
   snakeMin: number;
   snakeMax: number;
   turnBias: number; // โอกาสที่ลำตัวจะเลี้ยว (ยิ่งสูง ยิ่งหักมุมหลายชั้น)
+  fill?: boolean; // true = วางลูกศรจนเต็มกระดาน (pieces กลายเป็นเพดานสูงสุด)
   hearts: number | null; // null = ไม่มีตาย (โหมดง่าย)
 }
 
@@ -51,7 +52,7 @@ export const ARROW_MODE_CONFIGS: Record<GameMode, ArrowModeConfig> = {
     turnBias: 0.72,
     hearts: 3,
   },
-  // ยาก = ระดับ extreme ใหม่: กระดาน ×4, ลูกศรยาว 14-20, หักมุมมากกว่า medium
+  // ยาก = extreme: กระดาน ×4, ลูกศรยาว 14-20, หักมุมจัด, อัดแน่นเต็มกระดาน
   hard: {
     mode: 'hard',
     label: 'ยาก',
@@ -59,11 +60,12 @@ export const ARROW_MODE_CONFIGS: Record<GameMode, ArrowModeConfig> = {
     emoji: '🐉',
     cols: 48,
     rows: 30,
-    pieces: 40,
+    pieces: 300,
     snakeRatio: 1,
     snakeMin: 14,
     snakeMax: 20,
     turnBias: 0.88,
+    fill: true,
     hearts: 3,
   },
 };
