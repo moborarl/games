@@ -166,7 +166,8 @@ export function AmazeArrowGame() {
       onDone();
       return;
     }
-    const outDur = Math.max(130, (sTarget / SLIDE_SPEED) * 1000);
+    // จำกัดเวลาเลื่อนไม่เกิน 1.4 วิ เพื่อกระดานใหญ่ๆ จะได้ไม่วิ่งช้าเกินไป
+    const outDur = Math.min(1400, Math.max(130, (sTarget / SLIDE_SPEED) * 1000));
     const backDur = outDur * 0.75;
     const total = bounce ? outDur + backDur : outDur;
     const t0 = performance.now();

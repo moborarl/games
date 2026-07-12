@@ -16,47 +16,54 @@ export interface ArrowModeConfig {
   snakeRatio: number;
   snakeMin: number;
   snakeMax: number;
+  turnBias: number; // โอกาสที่ลำตัวจะเลี้ยว (ยิ่งสูง ยิ่งหักมุมหลายชั้น)
   hearts: number | null; // null = ไม่มีตาย (โหมดง่าย)
 }
 
 export const ARROW_MODE_CONFIGS: Record<GameMode, ArrowModeConfig> = {
+  // ง่าย = ระดับ "ปานกลาง" เดิม
   easy: {
     mode: 'easy',
     label: 'ง่าย',
     subtitle: 'สำหรับเด็ก 8 ขวบ',
     emoji: '🐣',
-    cols: 18,
-    rows: 12,
-    pieces: 20,
-    snakeRatio: 1,
-    snakeMin: 3,
-    snakeMax: 6,
-    hearts: null,
-  },
-  medium: {
-    mode: 'medium',
-    label: 'ปานกลาง',
-    subtitle: 'สำหรับเด็ก 13 ขวบ',
-    emoji: '🦊',
     cols: 24,
     rows: 15,
     pieces: 28,
     snakeRatio: 1,
     snakeMin: 4,
     snakeMax: 9,
-    hearts: 3,
+    turnBias: 0.72,
+    hearts: null,
   },
-  hard: {
-    mode: 'hard',
-    label: 'ยาก',
-    subtitle: 'สำหรับผู้ใหญ่',
-    emoji: '🐉',
+  // ปานกลาง = ระดับ "ยาก" เดิม
+  medium: {
+    mode: 'medium',
+    label: 'ปานกลาง',
+    subtitle: 'สำหรับเด็ก 13 ขวบ',
+    emoji: '🦊',
     cols: 30,
     rows: 20,
     pieces: 34,
     snakeRatio: 1,
     snakeMin: 5,
     snakeMax: 13,
+    turnBias: 0.72,
+    hearts: 3,
+  },
+  // ยาก = ระดับ extreme ใหม่: กระดาน ×4, ลูกศรยาว 14-20, หักมุมมากกว่า medium
+  hard: {
+    mode: 'hard',
+    label: 'ยาก',
+    subtitle: 'สำหรับผู้ใหญ่',
+    emoji: '🐉',
+    cols: 48,
+    rows: 30,
+    pieces: 40,
+    snakeRatio: 1,
+    snakeMin: 14,
+    snakeMax: 20,
+    turnBias: 0.88,
     hearts: 3,
   },
 };

@@ -27,6 +27,14 @@ function rand(n: number): number {
   return Math.floor(Math.random() * n);
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = rand(i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 /**
  * สร้างกระดานแบบย้อนกลับ: วางชิ้นทีละชิ้นโดยบังคับว่า "เส้นทางวิ่งออก" (ray)
  * ของชิ้นใหม่ต้องไม่ทับชิ้นที่วางไว้ก่อนหน้า — ชิ้นที่วางทีหลังจะออกก่อนเสมอ
@@ -84,7 +92,13 @@ export function generateBoard(cfg: ArrowModeConfig, colors: string[]): Piece[] {
         return null;
       }
       cells.push(second);
-      while (cells.length < targetLen) {
+      // สร้างลำตัวด้วย DFS แบบ backtracking เพื่อให้ลูกศรยาวๆ ไม่ตันกลางทาง
+      // เอนไปทาง "เลี้ยว" (turnBias) เพื่อให้หักมุมหลายชั้นแบบซิกแซก
+      const used = new Set(cells.map((cc) => key(cc.r, cc.c)));
+      let budget = 1600;
+      const grow = (): boolean => {
+        if (cells.length === targetLen) return true;
+        if (budget-- <= 0) return false;
         const cur = cells[cells.length - 1];
         const prev = cells[cells.length - 2];
         const lastDir = { r: cur.r - prev.r, c: cur.c - prev.c };
@@ -95,16 +109,22 @@ export function generateBoard(cfg: ArrowModeConfig, colors: string[]): Piece[] {
               inBoard(n.r, n.c) &&
               !occupied.has(key(n.r, n.c)) &&
               !raySet.has(key(n.r, n.c)) &&
-              !cells.some((cc) => cc.r === n.r && cc.c === n.c)
+              !used.has(key(n.r, n.c))
           );
-        if (options.length === 0) return null;
-        // เอนไปทาง "เลี้ยว" เพื่อให้ลำตัวหักมุมหลายชั้น (snake ซิกแซก)
-        const turning = options.filter((n) => n.r - cur.r !== lastDir.r || n.c - cur.c !== lastDir.c);
-        const straight = options.filter((n) => n.r - cur.r === lastDir.r && n.c - cur.c === lastDir.c);
-        const useTurn = turning.length > 0 && (straight.length === 0 || Math.random() < 0.72);
-        const pool = useTurn ? turning : straight;
-        cells.push(pool[rand(pool.length)]);
-      }
+        if (options.length === 0) return false;
+        const turning = shuffle(options.filter((n) => n.r - cur.r !== lastDir.r || n.c - cur.c !== lastDir.c));
+        const straight = shuffle(options.filter((n) => n.r - cur.r === lastDir.r && n.c - cur.c === lastDir.c));
+        const ordered = Math.random() < cfg.turnBias ? [...turning, ...straight] : [...straight, ...turning];
+        for (const n of ordered) {
+          cells.push(n);
+          used.add(key(n.r, n.c));
+          if (grow()) return true;
+          cells.pop();
+          used.delete(key(n.r, n.c));
+        }
+        return false;
+      };
+      if (!grow()) return null;
     }
 
     // คะแนน = จำนวน ray ของชิ้นก่อนหน้า ที่ลำตัวชิ้นนี้เข้าไปขวาง

@@ -82,10 +82,19 @@ dev.cmd                          Windows dev launcher (sets PATH, runs `npm run 
   blocked by another piece → bounces back (and costs a heart on
   medium/hard). Clear all pieces to win. Easy has no hearts (can't lose).
 - **Modes** (`games/amazeArrow/config.ts`): every piece is a multi-bend
-  snake now (no 1-cell arrows). easy 18×12 / 20 pieces / len 3-6 / no
-  hearts; medium 24×15 / 28 pieces / len 4-9 / 3 hearts; hard 30×20 / 34
-  pieces / len 5-13 / 3 hearts. `snakeRatio` is kept in the config type but
-  no longer read (always builds snakes); the length floor is 2 cells.
+  snake now (no 1-cell arrows). easy 24×15 / 28 pieces / len 4-9 / no
+  hearts; medium 30×20 / 34 pieces / len 5-13 / 3 hearts; hard (extreme)
+  48×30 / 40 pieces / len 14-20 / 3 hearts. Per-mode `turnBias` (0.72 for
+  easy/medium, 0.88 for hard) controls how bendy the snakes are.
+  `snakeRatio` is kept in the config type but no longer read (always builds
+  snakes); the length floor is 2 cells.
+- **Long snakes need backtracking**: the body is grown with a
+  budget-capped DFS (`generator.ts`, budget 1600 expansions/candidate) so
+  length-14-20 zig-zag snakes reliably reach target length instead of
+  dead-ending. Board generation is synchronous but stays fast (~30/70/95ms
+  for easy/medium/hard measured in-browser).
+- Slide animation duration is capped at 1.4s (`AmazeArrowGame.tsx`) so
+  pieces crossing the huge hard board don't crawl.
 - **Generator guarantees solvability** by reverse construction: each new
   piece's exit ray must avoid all previously placed pieces, so tapping in
   reverse placement order (descending `id`) always solves the board. Useful
