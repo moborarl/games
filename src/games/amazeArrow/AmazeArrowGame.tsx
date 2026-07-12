@@ -383,7 +383,7 @@ export function AmazeArrowGame() {
                   <path
                     className="arrow-head"
                     fill={p.color}
-                    d="M -2 -8 L 12 0 L -2 8 Z"
+                    d="M -3 -11 L 16 0 L -3 11 Z"
                     transform={`translate(${headInfo.p.x} ${headInfo.p.y}) rotate(${headInfo.angle})`}
                   />
                   <path className="arrow-hit" d={dFor(pts)} />

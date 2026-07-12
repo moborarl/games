@@ -153,6 +153,14 @@ shape fits (mode/time/moves), or add a new table + route if it doesn't.
 
 ## API
 
+- **Admin** (`/api/admin/*`, guarded by `x-admin-key` header matching the
+  `ADMIN_PASSWORD` Worker secret): `GET /scores?game=&mode=` (up to 500,
+  no top-10 cap), `DELETE /scores/:id`, `POST /scores/clear {game, mode}`.
+  Frontend at `/admin` (deliberately unlinked — players shouldn't see it);
+  password lives ONLY in the Worker secret (`wrangler secret put
+  ADMIN_PASSWORD`, already set in production) and in the gitignored
+  `.dev.vars` for local dev — never commit it. The admin key is kept in
+  sessionStorage after login.
 - `GET /api/scores?game=memory-match&mode=easy&limit=10` → top N by
   `time_ms` ascending (fastest first), then `moves` ascending as tiebreak.
 - `POST /api/scores` body `{ game, mode, playerName, timeMs, moves }` →
