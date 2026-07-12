@@ -81,9 +81,11 @@ dev.cmd                          Windows dev launcher (sets PATH, runs `npm run 
   (train-style) in the head's direction; clear path → exits the board,
   blocked by another piece → bounces back (and costs a heart on
   medium/hard). Clear all pieces to win. Easy has no hearts (can't lose).
-- **Modes** (`games/amazeArrow/config.ts`): easy 12×9 / 16 pieces / ~20%
-  snakes len 3-4; medium 15×12 / 42 pieces / ~40% snakes len 4-7 / 3
-  hearts; hard 20×15 / 66 pieces / ~45% snakes len 5-10 / 3 hearts.
+- **Modes** (`games/amazeArrow/config.ts`): every piece is a multi-bend
+  snake now (no 1-cell arrows). easy 18×12 / 20 pieces / len 3-6 / no
+  hearts; medium 24×15 / 28 pieces / len 4-9 / 3 hearts; hard 30×20 / 34
+  pieces / len 5-13 / 3 hearts. `snakeRatio` is kept in the config type but
+  no longer read (always builds snakes); the length floor is 2 cells.
 - **Generator guarantees solvability** by reverse construction: each new
   piece's exit ray must avoid all previously placed pieces, so tapping in
   reverse placement order (descending `id`) always solves the board. Useful
@@ -92,8 +94,13 @@ dev.cmd                          Windows dev launcher (sets PATH, runs `npm run 
   generator samples ~14 candidates and picks the one whose body blocks the
   most existing pieces' exit rays, so most pieces can't exit until others
   clear (on medium, ~half the board starts blocked). Tune difficulty via
-  piece counts/snake ratios in config, or the candidate count in
+  piece counts/snake lengths in config, or the candidate count in
   `generator.ts` (more candidates = more forced ordering).
+- **Bendiness**: the snake body-walk is turn-biased (~72% prefer changing
+  direction) so pieces zig-zag with multiple bends rather than running
+  straight. Collision/animation are unaffected — a snake slides train-style
+  along its own polyline and unbends as it exits, so head-ray collision
+  detection stays correct no matter how many bends.
 - **Animation is setTimeout-driven for game state; rAF only draws.** This
   matters: in throttled/background tabs rAF may never fire, and an earlier
   version locked up because piece removal happened in the rAF callback.

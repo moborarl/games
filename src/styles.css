@@ -496,7 +496,7 @@ a {
 .arrow-hit {
   fill: none;
   stroke: rgba(0, 0, 0, 0);
-  stroke-width: 28;
+  stroke-width: 32;
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: stroke;

@@ -86,6 +86,8 @@ export function generateBoard(cfg: ArrowModeConfig, colors: string[]): Piece[] {
       cells.push(second);
       while (cells.length < targetLen) {
         const cur = cells[cells.length - 1];
+        const prev = cells[cells.length - 2];
+        const lastDir = { r: cur.r - prev.r, c: cur.c - prev.c };
         const options = DIRS.map((d) => DIR_VECTORS[d])
           .map((vv) => ({ r: cur.r + vv.r, c: cur.c + vv.c }))
           .filter(
@@ -96,7 +98,12 @@ export function generateBoard(cfg: ArrowModeConfig, colors: string[]): Piece[] {
               !cells.some((cc) => cc.r === n.r && cc.c === n.c)
           );
         if (options.length === 0) return null;
-        cells.push(options[rand(options.length)]);
+        // เอนไปทาง "เลี้ยว" เพื่อให้ลำตัวหักมุมหลายชั้น (snake ซิกแซก)
+        const turning = options.filter((n) => n.r - cur.r !== lastDir.r || n.c - cur.c !== lastDir.c);
+        const straight = options.filter((n) => n.r - cur.r === lastDir.r && n.c - cur.c === lastDir.c);
+        const useTurn = turning.length > 0 && (straight.length === 0 || Math.random() < 0.72);
+        const pool = useTurn ? turning : straight;
+        cells.push(pool[rand(pool.length)]);
       }
     }
 
@@ -124,10 +131,12 @@ export function generateBoard(cfg: ArrowModeConfig, colors: string[]): Piece[] {
   }
 
   for (let i = 0; i < cfg.pieces; i++) {
-    const wantSnake = Math.random() < cfg.snakeRatio;
-    const len = wantSnake ? cfg.snakeMin + rand(cfg.snakeMax - cfg.snakeMin + 1) : 1;
+    // ทุกชิ้นเป็นลูกศรยาว (ไม่มี 1 ช่อง) — ถ้ากระดานแน่น ค่อยลดความยาวลง
+    // แต่ไม่ต่ำกว่า 2 ช่อง
+    const len = cfg.snakeMin + rand(cfg.snakeMax - cfg.snakeMin + 1);
     let piece = tryPlace(i, len);
-    if (!piece && len > 1) piece = tryPlace(i, 1);
+    if (!piece) piece = tryPlace(i, cfg.snakeMin);
+    if (!piece) piece = tryPlace(i, 2);
     if (!piece) break; // กระดานแน่นเกินไป — จบด้วยจำนวนเท่าที่วางได้
     pieces.push(piece);
   }
