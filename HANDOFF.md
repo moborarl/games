@@ -81,13 +81,19 @@ dev.cmd                          Windows dev launcher (sets PATH, runs `npm run 
   (train-style) in the head's direction; clear path → exits the board,
   blocked by another piece → bounces back (and costs a heart on
   medium/hard). Clear all pieces to win. Easy has no hearts (can't lose).
-- **Modes** (`games/amazeArrow/config.ts`): easy 7×6 / 16 pieces / short
-  arrows only; medium 9×8 / 28 pieces / ~25% snakes len 3-4 / 3 hearts;
-  hard 12×10 / 44 pieces / ~30% snakes len 3-5 / 3 hearts.
+- **Modes** (`games/amazeArrow/config.ts`): easy 12×9 / 16 pieces / ~20%
+  snakes len 3-4; medium 15×12 / 42 pieces / ~40% snakes len 4-7 / 3
+  hearts; hard 20×15 / 66 pieces / ~45% snakes len 5-10 / 3 hearts.
 - **Generator guarantees solvability** by reverse construction: each new
   piece's exit ray must avoid all previously placed pieces, so tapping in
   reverse placement order (descending `id`) always solves the board. Useful
   for testing: `g[data-pid]` elements, tap descending pid.
+- **Difficulty comes from a dependency bias**: among valid placements the
+  generator samples ~14 candidates and picks the one whose body blocks the
+  most existing pieces' exit rays, so most pieces can't exit until others
+  clear (on medium, ~half the board starts blocked). Tune difficulty via
+  piece counts/snake ratios in config, or the candidate count in
+  `generator.ts` (more candidates = more forced ordering).
 - **Animation is setTimeout-driven for game state; rAF only draws.** This
   matters: in throttled/background tabs rAF may never fire, and an earlier
   version locked up because piece removal happened in the rAF callback.
