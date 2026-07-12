@@ -84,12 +84,21 @@ dev.cmd                          Windows dev launcher (sets PATH, runs `npm run 
 - **Modes** (`games/amazeArrow/config.ts`): every piece is a multi-bend
   snake now (no 1-cell arrows). easy 24×15 / 28 pieces / len 4-9 / no
   hearts; medium 30×20 / 34 pieces / len 5-13 / 3 hearts; hard (extreme)
-  48×30 with `fill: true` — keeps placing pieces until the board saturates
-  (~70-75 pieces covering ~70% of cells; early pieces are len 14-20, later
-  ones shrink down a ladder to 2 as space runs out) / 3 hearts. Per-mode
-  `turnBias` (0.72 for easy/medium, 0.88 for hard) controls how bendy the
-  snakes are. Hard generation runs ~0.5s synchronously on mode click —
-  fine, but don't add anything slower to that path.
+  48×30 with `fill: true` — fills the board onion-style to ~93% of cells
+  (~85-90 pieces; the leftover ~7% is isolated single cells that can't
+  host a piece). Early pieces are len 14-20, later ones shrink down a
+  ladder to 2 as space runs out. Per-mode `turnBias` (0.72 easy/medium,
+  0.88 hard) controls bendiness. Hard generation ~150-200ms synchronously
+  on mode click.
+- **Fill mode is onion-ordered — don't "fix" this**: in fill mode the
+  candidate score is depth-dominated (deepest cells placed first, bodies
+  also walk deep-first) so the board fills center-out; pieces placed later
+  sit nearer the edge and exit first, peeling inward. If ray-blocking were
+  allowed to dominate instead (as it does in non-fill modes), pieces
+  scatter and enclose unreachable pockets, capping fill around ~70%. When
+  random placement stops finding spots, an exhaustive interior-first scan
+  (`tryPlaceExhaustive`) plugs remaining gaps with short pieces until no
+  legal placement exists.
   `snakeRatio` is kept in the config type but no longer read (always builds
   snakes); the length floor is 2 cells.
 - **Long snakes need backtracking**: the body is grown with a
