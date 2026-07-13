@@ -554,6 +554,126 @@ a {
   text-align: center;
 }
 
+/* ---------- Quick Math ---------- */
+.qm-play {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.qm-question {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7vw, 3.4rem);
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid rgba(64, 50, 90, 0.06);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 1rem 2rem;
+  text-align: center;
+}
+
+.qm-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 180px));
+  gap: 1rem;
+}
+
+.qm-choice {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+  cursor: pointer;
+  background: linear-gradient(140deg, #6e9fe0, #6a6dd8);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.1s ease;
+}
+
+.qm-choice:nth-child(2) {
+  background: linear-gradient(140deg, #5cc389, #23a578);
+}
+.qm-choice:nth-child(3) {
+  background: linear-gradient(140deg, #f0a35c, #e2803a);
+}
+.qm-choice:nth-child(4) {
+  background: linear-gradient(140deg, #e57296, #d9539f);
+}
+
+.qm-choice:active {
+  transform: scale(0.94);
+}
+
+.qm-choice.wrong {
+  animation: mismatch-shake 0.4s ease;
+  filter: saturate(0.4) brightness(0.9);
+}
+
+.qm-keypad-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.qm-entry {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  min-width: 160px;
+  min-height: 3rem;
+  padding: 0.3rem 1.2rem;
+  text-align: center;
+  background: var(--brand-soft);
+  border-radius: var(--radius-md);
+  color: var(--brand);
+  letter-spacing: 0.05em;
+}
+
+.qm-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 74px);
+  gap: 0.6rem;
+}
+
+.qm-key {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  height: 64px;
+  border: 1px solid rgba(64, 50, 90, 0.08);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.08s ease;
+}
+
+.qm-key:active {
+  transform: scale(0.92);
+}
+
+.qm-key.enter {
+  background: linear-gradient(135deg, #5cc389, #23a578);
+  color: white;
+  border: none;
+}
+
+.qm-key.clear {
+  background: linear-gradient(135deg, #f0a35c, #e2803a);
+  color: white;
+  border: none;
+}
+
 /* ---------- Win modal ---------- */
 .win-modal-backdrop {
   position: fixed;

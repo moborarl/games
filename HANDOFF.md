@@ -5,9 +5,10 @@ Last updated: 2026-07-08
 ## What this is
 
 A hub of simple browser games for kids, built on Cloudflare Workers. Games so
-far: **เกมส์ไพ่จับคู่** (memory match) and **Amaze Arrow** (arrow-sliding
-puzzle), each with 3 difficulty modes and a shared online scoreboard, plus a
-combined scores dashboard at `/scores`.
+far: **เกมส์ไพ่จับคู่** (memory match), **Amaze Arrow** (arrow-sliding
+puzzle), and **เกมคิดเลขเร็ว** (quick-math), each with 3 difficulty modes and a
+shared online scoreboard, plus a combined scores dashboard at `/scores` and a
+hidden admin page at `/admin`.
 
 - **Live**: https://kids-games.nupark.workers.dev
 - **Repo**: https://github.com/moborarl/games (branch `main`)
@@ -42,7 +43,7 @@ for something not yet done here (e.g. parent/child auth, R2 uploads).
 index.html                       Vite entry HTML (Google Fonts: Mali + Noto Sans Thai)
 src/
   main.tsx                       React root, mounts <App/> in BrowserRouter
-  App.tsx                        Routes: "/", /games/memory-match, /games/amaze-arrow, /scores
+  App.tsx                        Routes: "/", /games/{memory-match,amaze-arrow,quick-math}, /scores, /admin
   styles.css                     All CSS, single global stylesheet (design tokens in :root)
   lib/
     format.ts                    formatTime (m:ss.mmm)
@@ -56,7 +57,12 @@ src/
     Home.tsx                     Game hub tiles
     MemoryMatchPage.tsx          Page shell + mute toggle
     AmazeArrowPage.tsx           Page shell + mute toggle
+    QuickMathPage.tsx            Page shell + mute toggle
     ScoresPage.tsx               /scores dashboard: all games, all modes
+    AdminPage.tsx                hidden /admin: PIN login + manage scores
+  games/quickMath/
+    config.ts                    QUICK_MATH_CONFIGS + per-mode question generators
+    QuickMathGame.tsx            Game state machine, choice buttons / on-screen keypad
   games/memoryMatch/
     config.ts                    MODE_CONFIGS + CARD_SYMBOLS (emoji + pastel bg)
     MemoryMatchGame.tsx          Game state machine + rendering

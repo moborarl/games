@@ -9,6 +9,7 @@ const KEY_STORAGE = 'kids-games-admin-key';
 const GAME_LIST = [
   { slug: 'memory-match', emoji: '🃏', title: 'เกมส์ไพ่จับคู่' },
   { slug: 'amaze-arrow', emoji: '🏹', title: 'Amaze Arrow' },
+  { slug: 'quick-math', emoji: '🔢', title: 'เกมคิดเลขเร็ว' },
 ];
 
 export function AdminPage() {

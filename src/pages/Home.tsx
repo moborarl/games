@@ -16,13 +16,19 @@ const GAMES = [
     ready: true,
   },
   {
+    to: '/games/quick-math',
+    emoji: '🔢',
+    title: 'เกมคิดเลขเร็ว',
+    subtitle: 'ตอบเลขให้ถูกให้ไว ยิ่งเร็วยิ่งเก่ง!',
+    ready: true,
+  },
+  {
     to: '/scores',
     emoji: '🏆',
     title: 'กระดานคะแนนรวม',
     subtitle: 'ดูคะแนนทุกเกม ทุกระดับ',
     ready: true,
   },
-  { to: '#', emoji: '🔢', title: 'เกมส์เลข', subtitle: 'เร็วๆ นี้', ready: false },
 ];
 
 export function Home() {
